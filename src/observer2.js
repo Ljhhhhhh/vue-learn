@@ -44,3 +44,5 @@ export class Vue {
       console.log('render~', this._data.test);
   }
 }
+
+// https://juejin.im/book/5a36661851882538e2259c0f/section/5a3bb1636fb9a0452846aa50
