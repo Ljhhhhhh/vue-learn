@@ -12,7 +12,7 @@ module.exports = {
   devServer: {
     contentBase: path.join(__dirname, './dist'), //编译打包文件的位置
     publicPath: '/',
-    port: 8888, //服务器端口号
+    port: 9006, //服务器端口号
     host: '0.0.0.0',
     proxy: {}, //代理列表
     compress: true,
