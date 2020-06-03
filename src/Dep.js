@@ -20,6 +20,7 @@ export class Dep {
 export class Watcher {
   constructor () {
       /* 在new一个Watcher对象时将该对象赋值给Dep.target，在get中会用到 */
+      console.log(this, 'watcher this')
       Dep.target = this;
   }
 

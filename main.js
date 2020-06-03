@@ -20,3 +20,5 @@ let o = new Vue({
 o._data.test = 'hello,vue.'
 
 console.log(o)
+
+window.o = o;

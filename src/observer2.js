@@ -7,11 +7,14 @@ function cb(val) {
 
 function defineReactive(obj, key, val) {
   const dep = new Dep()
+  console.log(dep, 'dep')
   Object.defineProperty(obj, key, {
     enumerable: true /* 属性可枚举 */,
     configurable: true /* 属性可被修改或删除 */,
     get: function reactiveGetter() {
+      console.log(Dep.target, 'DEP1')
       dep.addSub(Dep.target)
+      console.log(dep, 'DEP2')
       return val /* 实际上会依赖收集，下一小节会讲 */
     },
     set: function reactiveSetter(newVal) {
