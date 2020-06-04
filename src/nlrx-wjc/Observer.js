@@ -1,5 +1,5 @@
 // 源码位置：src/core/observer/index.js
-
+import {Dep} from './Dep'
 /**
  * Observer类会通过递归的方式把一个对象的所有属性都转化成可观测对象
  */
@@ -38,11 +38,13 @@ function defineReactive(obj, key, val) {
   if (typeof val === 'object') {
     new Observer(val)
   }
+
+  const dep = new Dep()
   Object.defineProperty(obj, key, {
     enumerable: true,
     configurable: true,
     get() {
-      console.log(`${key}属性被读取了`)
+      dep.depend() // 收集依赖
       return val
     },
     set(newVal) {
@@ -51,6 +53,7 @@ function defineReactive(obj, key, val) {
       }
       console.log(`${key}属性被修改了`)
       val = newVal
+      dep.notify() // 在setter中通知依赖更新
     },
   })
 }
