@@ -6,6 +6,7 @@ export default class Dep {
 
   addSub (sub) {
     this.subs.push(sub)
+    console.log(this, 'this is dep')
   }
   // 删除一个依赖
   removeSub (sub) {

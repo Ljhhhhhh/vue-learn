@@ -1,24 +1,33 @@
-import { Observer } from './src/nlrx-wjc/Observer'
+// import { Observer } from './src/nlrx-wjc/Observer'
 
-console.log('hello vue')
+// class Vue {
+//   /* Vue构造类 */
+//   constructor(options) {
+//     this._data = options.data
+//     new Observer(this._data)
+//     /* 新建一个Watcher观察者对象，这时候Dep.target会指向这个Watcher对象 */
+//     /* 在这里模拟render的过程，为了触发test属性的get函数 */
+//     console.log('render~', this._data)
+//   }
+// }
 
-let car = new Observer({
-  'brand':'BMW',
-  'price':3000
-})
-
-car.value = 1000
-
-console.log(car)
-// import { Vue } from './src/observer2'
-
-// let o = new Vue({
+// const vm = new Vue({
 //   data: {
-//     test: 'I am test.',
+//     brand: 'BMW',
+//     price: 3000,
 //   },
 // })
-// o._data.test = 'hello,vue.'
 
-// console.log(o)
+// console.log(vm._data.brand)
 
-// window.o = o;
+import Vue from './src/juejin/Vue'
+
+let o = new Vue({
+  data: {
+    test: 'i am test'
+  }
+})
+
+o._data.test = 'hello world'
+
+console.log(o._data.test)

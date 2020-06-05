@@ -20,6 +20,7 @@ export class Observer {
   walk(obj) {
     const keys = Object.keys(obj)
     for (let i = 0; i < keys.length; i++) {
+      console.log(keys[i])
       defineReactive(obj, keys[i])
     }
   }
@@ -44,6 +45,8 @@ function defineReactive(obj, key, val) {
     enumerable: true,
     configurable: true,
     get() {
+      window.target = this
+      console.log('获取数据')
       dep.depend() // 收集依赖
       return val
     },
