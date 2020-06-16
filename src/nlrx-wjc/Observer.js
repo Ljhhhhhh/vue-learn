@@ -1,6 +1,6 @@
 // 源码位置：src/core/observer/index.js
 import Dep from './Dep'
-
+import { def } from './utils'
 const arrayProto = Array.prototype
 // 创建一个对象作为拦截器
 export const arrayMethods = Object.create(arrayProto)
@@ -21,29 +21,36 @@ const methodsToPatch = [
  */
 methodsToPatch.forEach(function (method) {
   const original = arrayProto[method] // 缓存原生方法
-  Object.defineProperty(arrayMethods, method, {
-    enumerable: false,
-    configurable: true,
-    writable: true,
-    value: function mutator(...args) {
-      const result = original.apply(this, args)
-      const ob = this.__ob__
-      let inserted
-      switch (method) {
-        case 'push':
-        case 'unshift':
-          inserted = args // 如果是push或unshift方法，那么传入参数就是新增的元素
-          break
-        case 'splice':
-          inserted = args.slice(2) // 如果是splice方法，那么传入参数列表中下标为2的就是新增的元素
-          break
-      }
-      if (inserted) ob.observeArray(inserted) // 调用observe函数将新增的元素转化成响应式
-      // notify change
-      ob.dep.notify()
-      return result
-    },
+  def(arrayMethods, method, function mutator (...args) {
+    const result = original.apply(this, args)
+    const ob = this.__ob__
+    // notify change
+    ob.dep.notify()
+    return result
   })
+  // Object.defineProperty(arrayMethods, method, {
+  //   enumerable: false,
+  //   configurable: true,
+  //   writable: true,
+  //   value: function mutator(...args) {
+  //     const result = original.apply(this, args)
+  //     const ob = this.__ob__
+  //     let inserted
+  //     switch (method) {
+  //       case 'push':
+  //       case 'unshift':
+  //         inserted = args // 如果是push或unshift方法，那么传入参数就是新增的元素
+  //         break
+  //       case 'splice':
+  //         inserted = args.slice(2) // 如果是splice方法，那么传入参数列表中下标为2的就是新增的元素
+  //         break
+  //     }
+  //     if (inserted) ob.observeArray(inserted) // 调用observe函数将新增的元素转化成响应式
+  //     // notify change
+  //     ob.dep.notify()
+  //     return result
+  //   },
+  // })
 })
 
 // 能力检测：判断__proto__是否可用，因为有的浏览器不支持该属性
@@ -67,7 +74,7 @@ function protoAugment(target, src, keys) {
 function copyAugment(target, src, keys) {
   for (let i = 0, l = keys.length; i < l; i++) {
     const key = keys[i]
-    // def(target, key, src[key])
+    def(target, key, src[key])
   }
 }
 
@@ -79,7 +86,7 @@ export class Observer {
     this.value = value
     // 给value新增一个__ob__属性，值为该value的Observer实例
     // 相当于为value打上标记，表示它已经被转化成响应式了，避免重复操作
-    // def(value, '__ob__', this)
+    def(value, '__ob__', this)
     if (Array.isArray(value)) {
       const augment = hasProto ? protoAugment : copyAugment
       augment(value, arrayMethods, arrayKeys)
