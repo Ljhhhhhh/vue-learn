@@ -1,6 +1,6 @@
 // 源码位置：src/core/observer/index.js
 import Dep from './Dep'
-import { def } from './utils'
+import { def, hasOwn } from './utils'
 const arrayProto = Array.prototype
 // 创建一个对象作为拦截器
 export const arrayMethods = Object.create(arrayProto)
@@ -21,36 +21,24 @@ const methodsToPatch = [
  */
 methodsToPatch.forEach(function (method) {
   const original = arrayProto[method] // 缓存原生方法
-  def(arrayMethods, method, function mutator (...args) {
+  def(arrayMethods, method, function mutator(...args) {
     const result = original.apply(this, args)
     const ob = this.__ob__
+    let inserted
+    switch (method) {
+      case 'push':
+      case 'unshift':
+        inserted = args // 如果是push或unshift方法，那么传入参数就是新增的元素
+        break
+      case 'splice':
+        inserted = args.slice(2) // 如果是splice方法，那么传入参数列表中下标为2的就是新增的元素
+        break
+    }
+    if (inserted) ob.observeArray(inserted)
     // notify change
     ob.dep.notify()
     return result
   })
-  // Object.defineProperty(arrayMethods, method, {
-  //   enumerable: false,
-  //   configurable: true,
-  //   writable: true,
-  //   value: function mutator(...args) {
-  //     const result = original.apply(this, args)
-  //     const ob = this.__ob__
-  //     let inserted
-  //     switch (method) {
-  //       case 'push':
-  //       case 'unshift':
-  //         inserted = args // 如果是push或unshift方法，那么传入参数就是新增的元素
-  //         break
-  //       case 'splice':
-  //         inserted = args.slice(2) // 如果是splice方法，那么传入参数列表中下标为2的就是新增的元素
-  //         break
-  //     }
-  //     if (inserted) ob.observeArray(inserted) // 调用observe函数将新增的元素转化成响应式
-  //     // notify change
-  //     ob.dep.notify()
-  //     return result
-  //   },
-  // })
 })
 
 // 能力检测：判断__proto__是否可用，因为有的浏览器不支持该属性
@@ -84,6 +72,7 @@ function copyAugment(target, src, keys) {
 export class Observer {
   constructor(value) {
     this.value = value
+    this.dep = new Dep()    // 实例化一个依赖管理器，用来收集数组依赖
     // 给value新增一个__ob__属性，值为该value的Observer实例
     // 相当于为value打上标记，表示它已经被转化成响应式了，避免重复操作
     def(value, '__ob__', this)
@@ -135,7 +124,7 @@ function defineReactive(obj, key, val) {
     configurable: true,
     get() {
       window.target = this
-      console.log('获取数据')
+      console.log('获取数据', val)
       dep.depend() // 收集依赖
       if (childOb) {
         childOb.dep.depend()
@@ -161,7 +150,7 @@ function defineReactive(obj, key, val) {
  * 如果 Value 已经存在一个Observer实例，则直接返回它
  */
 export function observe(value, asRootData) {
-  if (typeof value != 'object' || value instanceof VNode) {
+  if (typeof value != 'object') {
     return
   }
   let ob
