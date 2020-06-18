@@ -62,3 +62,10 @@ export function proxy (target, sourceKey, key) {
   }
   Object.defineProperty(target, key, sharedPropertyDefinition)
 }
+
+export const isAndroid = (UA && UA.indexOf('android') > 0) || (weexPlatform === 'android')
+export const isIOS = (UA && /iphone|ipad|ipod|ios/.test(UA)) || (weexPlatform === 'ios')
+/* istanbul ignore next */
+export function isNative (Ctor) {
+  return typeof Ctor === 'function' && /native code/.test(Ctor.toString())
+}
